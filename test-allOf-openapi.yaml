@@ -1,0 +1,361 @@
+openapi: "3.0.0"
+info:
+  version: 0.1.0
+  title: Test allOf
+paths:
+  /api/v1/locations/wrong:
+    get:
+      summary: get competitions locations KO
+      x-eov-operation-handler: CompetitionsController
+      operationId: getCompetitionsLocations
+      tags:
+          - locations
+      security:
+          - bearerAuth: [ ]
+      parameters:
+        - name: page
+          in: query
+          description: page number for pagination
+          schema:
+            type: number
+            minimum: 1
+            default: 1
+        - name: per_page
+          in: query
+          description: number of items per page
+          schema:
+            type: number
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: startBefore
+          in: query
+          required: false
+          description: return competitions that start before date (unix epoch)
+          schema:
+              type: number
+              minimum: 1577836800
+              maximum: 4070908800
+        - name: startAfter
+          in: query
+          required: false
+          description: return competitions that start after date (unix epoch)
+          schema:
+              type: number
+              minimum: 1577836800
+              maximum: 4070908800
+        - name: endBefore
+          in: query
+          required: false
+          description: return competitions that end before date (unix epoch)
+          schema:
+              type: number
+              minimum: 1577836800
+              maximum: 4070908800
+        - name: endAfter
+          in: query
+          required: false
+          description: return competitions that end after date (unix epoch)
+          schema:
+              type: number
+              minimum: 1577836800
+              maximum: 4070908800
+      responses:
+        '200':
+          description: Expected response to a valid request
+          headers:
+            x-page:
+              allowEmptyValue: true
+              schema:
+                type: number
+                minimum: 1
+            x-per-page:
+              allowEmptyValue: true
+              schema:
+                type: number
+                minimum: 1
+            x-prev-page:
+              allowEmptyValue: true
+              schema:
+                type: number
+                minimum: 1
+            x-next-page:
+              allowEmptyValue: true
+              schema:
+                type: number
+                minimum: 1
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Competition"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenError"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+  /api/v1/locations/expected:
+    get:
+      summary: get competitions locations OK
+      x-eov-operation-handler: CompetitionsController
+      operationId: getCompetitionsLocationsOk
+      tags:
+        - locations
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: page
+          in: query
+          description: page number for pagination
+          schema:
+            type: number
+            minimum: 1
+            default: 1
+        - name: per_page
+          in: query
+          description: number of items per page
+          schema:
+            type: number
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: startBefore
+          in: query
+          required: false
+          description: return competitions that start before date (unix epoch)
+          schema:
+            type: number
+            minimum: 1577836800
+            maximum: 4070908800
+        - name: startAfter
+          in: query
+          required: false
+          description: return competitions that start after date (unix epoch)
+          schema:
+            type: number
+            minimum: 1577836800
+            maximum: 4070908800
+        - name: endBefore
+          in: query
+          required: false
+          description: return competitions that end before date (unix epoch)
+          schema:
+            type: number
+            minimum: 1577836800
+            maximum: 4070908800
+        - name: endAfter
+          in: query
+          required: false
+          description: return competitions that end after date (unix epoch)
+          schema:
+            type: number
+            minimum: 1577836800
+            maximum: 4070908800
+      responses:
+        '200':
+          description: Expected response to a valid request
+          headers:
+            x-page:
+              allowEmptyValue: true
+              schema:
+                type: number
+                minimum: 1
+            x-per-page:
+              allowEmptyValue: true
+              schema:
+                type: number
+                minimum: 1
+            x-prev-page:
+              allowEmptyValue: true
+              schema:
+                type: number
+                minimum: 1
+            x-next-page:
+              allowEmptyValue: true
+              schema:
+                type: number
+                minimum: 1
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CompetitionFull"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenError"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    CompetitionBase:
+      type: object
+      properties:
+        eventName:
+          type: string
+          example: "Australian Open"
+        eventType:
+          type: string
+          example: "Sports"
+        eventSubType:
+          type: string
+          example: "Tennis"
+        startDate:
+          type: string
+          format: date
+          example: "2024-01-01"
+        endDate:
+          type: string
+          format: date
+          example: "2024-01-05"
+        estimatedEventNumber:
+          type: integer
+          example: 100
+    CompetitionLocation:
+      type: object
+      required:
+        - locationId
+        - label
+      properties:
+        locationId:
+          type: string
+          example: "955"
+        label:
+          type: string
+          example: "Stadium court"
+    Competition:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CompetitionBase'
+        - type: object
+          required:
+            - eventLocations
+          properties:
+            eventLocations:
+              type: array
+              items:
+                $ref: '#/components/schemas/CompetitionLocation'
+    CompetitionFull:
+      type: object
+      properties:
+        eventName:
+          type: string
+          example: "Australian Open"
+        eventType:
+          type: string
+          example: "Sports"
+        eventSubType:
+          type: string
+          example: "Tennis"
+        startDate:
+          type: string
+          format: date
+          example: "2024-01-01"
+        endDate:
+          type: string
+          format: date
+          example: "2024-01-05"
+        estimatedEventNumber:
+          type: integer
+          example: 100
+        eventLocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/CompetitionLocation'
+    BasicErrorModel:
+      type: object
+      required:
+        - status
+        - reason
+      properties:
+        status:
+          type: integer
+          format: int32
+        reason:
+          type: string
+    InvalidPayloadError:
+      allOf:
+        - $ref: '#/components/schemas/BasicErrorModel'
+        - type: object
+          properties:
+            status:
+              example: 400
+            reason:
+              example: Invalid payload
+    UnauthorizedError:
+      allOf:
+        - $ref: '#/components/schemas/BasicErrorModel'
+        - type: object
+          properties:
+            status:
+              example: 401
+            reason:
+              example: Unauthorized
+    ForbiddenError:
+      allOf:
+        - $ref: '#/components/schemas/BasicErrorModel'
+        - type: object
+          properties:
+            status:
+              example: 403
+            reason:
+              example: Forbidden
+    NotFoundError:
+      allOf:
+        - $ref: '#/components/schemas/BasicErrorModel'
+        - type: object
+          properties:
+            status:
+              example: 404
+            reason:
+              example: Not Found
+    ConflictError:
+      allOf:
+        - $ref: '#/components/schemas/BasicErrorModel'
+        - type: object
+          properties:
+            status:
+              example: 409
+            reason:
+              example: Conflict
+    InternalServerError:
+      allOf:
+        - $ref: '#/components/schemas/BasicErrorModel'
+        - type: object
+          properties:
+            status:
+              example: 500
+            reason:
+              example: Internal Server Error
